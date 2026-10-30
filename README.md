@@ -162,3 +162,4 @@ npx --yes --package @tauri-apps/cli@2.12.4 tauri build --ci --no-sign --bundles 
 ```
 
 これは配布形式のローカル検証用です。Developer ID署名・公証の完了を意味しません。
+# veil-boundary-lab
