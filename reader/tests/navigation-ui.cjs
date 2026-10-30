@@ -13,6 +13,10 @@ for (let i = 0; i < 130; i++) {
   if (i % 10 === 0) md += `## 節${i}\n\n`;
   md += `段落${i}。日本語の読書位置を確認します。${i === 90 ? "検索対象unique" : ""}\n\n`;
 }
+for (const heading of ["foo", "foo-1", "foo"]) {
+  md += `# ${heading}\n\n` + "見出し移動の確認用本文。\n\n".repeat(30);
+}
+md += "[末尾のfooへ](#foo-2)\n\n";
 fs.writeFileSync(path.join(fixtures, "A.md"), md);
 const doc = JSON.parse(
   execFileSync(
@@ -229,6 +233,26 @@ const doc = JSON.parse(
       await page.evaluate(() => tabs.get(active).history?.back.length || 0),
       0,
     );
+    // Numbered titles and duplicate titles must have distinct TOC/fragment targets.
+    await page.evaluate((id) => activate(id), doc.id);
+    await frame();
+    await page.locator("#menu-toggle").click();
+    await page.locator("#contents").click();
+    await page.locator("#outline a").filter({ hasText: /^foo$/ }).last().click();
+    assert.equal(
+      await page.evaluate(() => captureReadingPosition().heading),
+      "foo-2",
+    );
+    await page.evaluate(() => goToHeading("foo-1"));
+    assert.equal(
+      await page.evaluate(() => captureReadingPosition().heading),
+      "foo-1",
+    );
+    await page.locator('#document a[href="#foo-2"]').click();
+    assert.equal(
+      await page.evaluate(() => captureReadingPosition().heading),
+      "foo-2",
+    );
     await page.evaluate(() => changeLanguage("en"));
     assert.equal(await page.locator("#back").textContent(), "Back");
     assert.equal(await page.locator("#forward").textContent(), "Forward");
@@ -248,7 +272,7 @@ const doc = JSON.parse(
     });
     assert.deepEqual(errors, []);
     console.log(
-      "PASS: TOC/fragment/search history, exact reading offsets, forward branching, per-tab positions, shortcuts/input/IME guards, update/fallback, 100-entry cap, close/empty, stale fragment cancellation, JA/EN, narrow layout, console",
+      "PASS: TOC/fragment/search history, collision-free heading targets, exact reading offsets, forward branching, per-tab positions, shortcuts/input/IME guards, update/fallback, 100-entry cap, close/empty, stale fragment cancellation, JA/EN, narrow layout, console",
     );
     console.log("fixtures: " + fixtures);
   } finally {

@@ -139,6 +139,9 @@ GitHubのリポジトリ名を `md-viewer` へ変更しました。アプリの�
 md-viewer本体は[MIT](reader/LICENSE)。範囲は[LICENSE-SCOPE.md](LICENSE-SCOPE.md)を参照してください。
 ルートでcargo build --locked、npm ci --ignore-scripts、npx playwright install chromiumを実行できます。
 検証はnpm run check:rust、npm run check:docs、npm run test:uiです。初回の開発依存取得はネット接続が必要です。
-Windows/macOSのCIは定義済みですが、pushしていないため実行結果はまだありません。署名・公開は行いません。
+Windows/macOSのCIは[Check md-viewer](.github/workflows/check.yml)で定義し、ブランチへのpush時に実行します。
+実行結果は[GitHub Actions](https://github.com/mt4110/md-viewer/actions/workflows/check.yml)で対象コミットを確認してください。
+CIのビルド・テストと、Windows実機でのOS連携やインストーラーの導入確認は別です。
+タグ・リリースの作成、配布アプリの署名・公証は、別途公開可否を判断してから行います。
 ソース候補はpython3 tools/package_md_viewer.pyで新規出力先へ作ります。旧package_source.pyは使用しません。
 [セキュリティ方針](SECURITY.md)も確認してください。

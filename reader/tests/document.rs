@@ -13,6 +13,58 @@ fn japanese_structure_and_duplicate_anchors() {
     assert!(d.html.contains("<table>"));
     assert!(d.html.contains("disabled"));
 }
+
+#[test]
+fn heading_ids_remain_unique_when_titles_include_generated_suffixes() {
+    for (text, expected) in [
+        (
+            "# foo\n\n# foo-1\n\n# foo\n\n# foo-2\n\n# foo\n\n# foo-1",
+            vec!["foo", "foo-1", "foo-2", "foo-2-1", "foo-3", "foo-1-1"],
+        ),
+        (
+            "# foo\n\n# foo\n\n# foo-1\n\n# foo\n\n# foo-1",
+            vec!["foo", "foo-1", "foo-1-1", "foo-2", "foo-1-2"],
+        ),
+        (
+            "# 見出し\n\n# 見出し-1\n\n# 見出し",
+            vec!["見出し", "見出し-1", "見出し-2"],
+        ),
+    ] {
+        let doc = render(text, Path::new("."), "test".into()).unwrap();
+        let ids: Vec<_> = doc.headings.iter().map(|h| h.id.as_str()).collect();
+        assert_eq!(ids, expected);
+        for id in ids {
+            assert_eq!(doc.html.matches(&format!("id=\"{id}\"")).count(), 1);
+        }
+    }
+}
+
+#[test]
+fn encoded_hash_in_local_filename_is_distinct_from_fragment() {
+    use md_viewer::document::resolve_local;
+    let root = tempfile::tempdir().unwrap().keep();
+    let source = root.join("入口.md");
+    std::fs::write(&source, "# Main").unwrap();
+    for name in ["notes#1.md", "notes.md#1.md", "notes%231.md"] {
+        std::fs::write(root.join(name), "# Target").unwrap();
+    }
+    // A literal fragment must still select notes.md, while %23 belongs to the filename.
+    std::fs::write(root.join("notes.md"), "# Different document").unwrap();
+    for (target, expected) in [
+        ("notes%231.md", "notes#1.md"),
+        ("notes%231.md#target", "notes#1.md"),
+        ("notes.md%231.md#target", "notes.md#1.md"),
+        ("notes%25231.md#target", "notes%231.md"),
+        ("notes.md#target", "notes.md"),
+    ] {
+        assert_eq!(
+            resolve_local(&source, target).unwrap(),
+            root.join(expected).canonicalize().unwrap(),
+            "target: {target}"
+        );
+    }
+    assert!(resolve_local(&source, "%2e%2e/outside%231.md#target").is_err());
+}
 #[test]
 fn untrusted_content_never_executes() {
     let d=render("<script>alert(1)</script>\n\n[x](javascript:alert(1))\n\n![secret](../../Cargo.toml)\n\n![remote](https://example.com/x.png)",Path::new("."),"test".into()).unwrap();

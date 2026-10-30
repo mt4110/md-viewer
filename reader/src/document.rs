@@ -1,7 +1,12 @@
 use base64::{Engine, engine::general_purpose::STANDARD};
 use pulldown_cmark::{Event, Options, Parser, Tag, TagEnd, html};
 use serde::Serialize;
-use std::{collections::HashMap, fs, io::Read, path::Path};
+use std::{
+    collections::{HashMap, HashSet},
+    fs,
+    io::Read,
+    path::Path,
+};
 
 pub const MAX_DOCUMENT: u64 = 2 * 1024 * 1024;
 const MAX_IMAGE: u64 = 8 * 1024 * 1024;
@@ -222,6 +227,7 @@ fn render_mode(text: &str, root: &Path, name: String, images: bool) -> Result<Do
     let mut output = Vec::new();
     let mut headings = Vec::new();
     let mut counts = HashMap::<String, usize>::new();
+    let mut used_ids = HashSet::new();
     let mut total = 0;
     let mut pixels = 0;
     let mut image_count = 0;
@@ -251,11 +257,15 @@ fn render_mode(text: &str, root: &Path, name: String, images: bool) -> Result<Do
                     })
                     .collect();
                 let count = counts.entry(base.clone()).or_default();
-                let id = if *count == 0 {
-                    base
+                let mut id = if *count == 0 {
+                    base.clone()
                 } else {
                     format!("{base}-{count}")
                 };
+                while !used_ids.insert(id.clone()) {
+                    *count += 1;
+                    id = format!("{base}-{count}");
+                }
                 *count += 1;
                 headings.push(Heading {
                     id: id.clone(),
@@ -345,8 +355,7 @@ pub fn resolve_local(source: &Path, target: &str) -> Result<std::path::PathBuf, 
         return Err("このリンク形式にはまだ対応していません。".into());
     }
     let root = local_path(source.parent().ok_or("参照フォルダーがありません。")?)?;
-    let file = local_path(&root.join(target.split('#').next().unwrap_or("")))
-        .map_err(|_| "リンク切れです。")?;
+    let file = local_path(&root.join(target)).map_err(|_| "リンク切れです。")?;
     if !file.starts_with(&root) {
         return Err("親フォルダー外の文書です。「ファイルを開く」から選んでください。".into());
     }
