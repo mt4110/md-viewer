@@ -12,6 +12,8 @@
 - 番号付き見出しと重複見出しの順序、日本語、%23・%2523、フラグメント併用、参照範囲外の拒否を確認した。
 - macOS ARM64／Rust 1.95.0で24テスト、fmt・Clippy、文書lintに成功した。
 - Playwright 1.58.2／既存Chromium 153でUI回帰4本に成功し、目次と文書内リンクから衝突のあった見出しへの移動も確認した。
+- 初回CIでmacOSの全チェックとreleaseビルドが成功した。Windowsはtauri-buildが要求するicons/icon.icoの欠落で停止したため、
+  既存64×64 RGBA PNGを変更せずICOへ格納したファイルを追加した。ICOヘッダーと内包PNGの一致を確認し、再度CIで検証する。
 - Windows/macOSのCI結果は、対象コミットの[Actions](https://github.com/mt4110/md-viewer/actions/workflows/check.yml)で確認する。
   CIでの検証と、Windows実機のWebView2・関連付け・IME・Narrator・インストーラー導入の確認は区別する。
 
