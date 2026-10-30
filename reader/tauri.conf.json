@@ -10,7 +10,8 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["app", "dmg", "nsis"],
+    "targets": "all",
+    "icon": ["icons/icon.png", "icons/icon.ico"],
     "fileAssociations": [{ "ext": ["md", "markdown"], "name": "Markdown", "role": "Viewer" }],
     "windows": { "webviewInstallMode": { "type": "embedBootstrapper" }, "nsis": { "languages": ["Japanese"], "installMode": "currentUser" } }
   }

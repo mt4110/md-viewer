@@ -145,3 +145,19 @@ CIのビルド・テストと、Windows実機でのOS連携やインストーラ
 タグ・リリースの作成、配布アプリの署名・公証は、別途公開可否を判断してから行います。
 ソース候補はpython3 tools/package_md_viewer.pyで新規出力先へ作ります。旧package_source.pyは使用しません。
 [セキュリティ方針](SECURITY.md)も確認してください。
+
+## 所有者向けの配布候補検証
+
+[Package Windows test candidate](.github/workflows/package-candidate.yml)は、feat/md-viewerの対象変更時に
+未署名の日本語NSISセットアップ、対応ソース、SHA-256をActionsの成果物として7日間保存します。
+タグやGitHub Releaseは作成しません。第三者権利表示の確認が未完了のため、一般配布用とは扱いません。
+[Windows実機での確認手順](docs/markdown-reader/WINDOWS_MANUAL_CHECK.md)は、画面を接続できるときに実施してください。
+
+梱包用CLIは@tauri-apps/cli 2.12.4へ固定しています。macOSはreader/で以下を実行します。
+既存の成果物を上書きしないよう、別の作業場所と新しいCARGO_TARGET_DIRを使用してください。
+
+```sh
+npx --yes --package @tauri-apps/cli@2.12.4 tauri build --ci --no-sign --bundles app,dmg -- --locked
+```
+
+これは配布形式のローカル検証用です。Developer ID署名・公証の完了を意味しません。
