@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "extra-field",
+  "title": "許可していない項目が追加される",
+  "kind": "boundary",
+  "synthetic": true,
+  "response_file": "cases/extra-field/response.json",
+  "expected": {
+    "content_check": "denied",
+    "reason": "unapproved_field"
+  },
+  "lesson": "所属とIDが正しくても、許可項目にないinternal_noteを含むため応答全体を拒否します。",
+  "highlights": [
+    {
+      "id": "field-comparison",
+      "source": "policy",
+      "start_line": 6,
+      "end_line": 6,
+      "expected_text": "    \"fields\": [\"id\", \"tenant_id\", \"name\"],",
+      "label": "許可された項目名"
+    },
+    {
+      "id": "field-comparison",
+      "source": "response",
+      "start_line": 6,
+      "end_line": 6,
+      "expected_text": "    \"internal_note\": \"合成の社内メモ\"",
+      "label": "許可していない項目"
+    }
+  ]
+}

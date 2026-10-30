@@ -1,0 +1,32 @@
+[package]
+name = "veil-boundary-lab"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95"
+publish = false
+description = "Synthetic response-boundary cases evaluated by LeakFence"
+
+[dependencies]
+leak-fence-core = { git = "https://github.com/mt4110/leak-fence", rev = "6a0f416e23da5e0cff5890fd05b6b1d9a4162393" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[lib]
+path = "../src/lib.rs"
+
+[[bin]]
+name = "veil-boundary-lab"
+path = "../src/main.rs"
+
+[[test]]
+name = "report_contract"
+path = "../tests/report_contract.rs"
+
+[[test]]
+name = "render_safety"
+path = "../tests/render_safety.rs"
+
+[[test]]
+name = "suite_contract"
+path = "../tests/suite_contract.rs"
+

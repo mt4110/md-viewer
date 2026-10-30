@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "id": "allowed",
+  "title": "許可された応答",
+  "kind": "boundary",
+  "synthetic": true,
+  "response_file": "cases/allowed/response.json",
+  "expected": {
+    "content_check": "passed"
+  },
+  "lesson": "許可された所属・ID・項目の応答は内容検査に通過します。日次取得枠は検査していません。",
+  "highlights": []
+}

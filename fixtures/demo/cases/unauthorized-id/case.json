@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "unauthorized-id",
+  "title": "同じ所属でも未許可のID",
+  "kind": "boundary",
+  "synthetic": true,
+  "response_file": "cases/unauthorized-id/response.json",
+  "expected": {
+    "content_check": "denied",
+    "reason": "object_unauthorized"
+  },
+  "lesson": "所属が同じでも、この利用者の許可ID集合にない行を含むため応答全体を拒否します。",
+  "highlights": [
+    {
+      "id": "id-comparison",
+      "source": "context",
+      "start_line": 5,
+      "end_line": 5,
+      "expected_text": "  \"record_ids\": [\"1\", \"2\"]",
+      "label": "この利用者に許可されたID集合"
+    },
+    {
+      "id": "id-comparison",
+      "source": "response",
+      "start_line": 3,
+      "end_line": 3,
+      "expected_text": "    \"id\": \"3\",",
+      "label": "許可集合にないID"
+    }
+  ]
+}

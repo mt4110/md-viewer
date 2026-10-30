@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "foreign-tenant",
+  "title": "別顧客の行が混ざる",
+  "kind": "boundary",
+  "synthetic": true,
+  "response_file": "cases/foreign-tenant/response.json",
+  "expected": {
+    "content_check": "denied",
+    "reason": "tenant_mismatch"
+  },
+  "lesson": "項目とIDが許可済みでも、所属が異なる行を含むため応答全体を拒否します。",
+  "highlights": [
+    {
+      "id": "tenant-comparison",
+      "source": "context",
+      "start_line": 3,
+      "end_line": 3,
+      "expected_text": "  \"tenant\": \"synthetic-acme\",",
+      "label": "この利用者に許可された所属"
+    },
+    {
+      "id": "tenant-comparison",
+      "source": "response",
+      "start_line": 9,
+      "end_line": 9,
+      "expected_text": "    \"tenant_id\": \"synthetic-other\",",
+      "label": "混入した行の所属"
+    }
+  ]
+}

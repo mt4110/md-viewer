@@ -1,0 +1,11 @@
+// 日本語本文・表の行長は制限しない。旧ラボの原文・証拠は検証対象に含めない。
+{
+  "config": {
+    "default": true,
+    "MD013": false
+  },
+  "globs": [
+    "README.md",
+    "docs/markdown-reader/*.md"
+  ]
+}

@@ -1,0 +1,8 @@
+[
+  {
+    "id": "1",
+    "tenant_id": "synthetic-acme",
+    "name": "合成顧客A",
+    "internal_note": "合成の社内メモ"
+  }
+]

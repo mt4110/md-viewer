@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>md-viewer</title>
+    <link rel="stylesheet" href="reader.css" />
+    <script defer src="reader.js"></script>
+  </head>
+  <body>
+    <dialog
+      id="external-dialog"
+      aria-labelledby="external-title"
+      aria-describedby="external-explanation"
+    >
+      <h2 id="external-title">外部リンクを開きますか？</h2>
+      <p id="external-explanation">
+        表示名ではなく、接続先とURLを確認してください。開くと標準ブラウザが接続します。
+      </p>
+      <p>
+        <strong id="external-host-label">接続先</strong>
+        <code id="external-host" dir="ltr"></code>
+      </p>
+      <p id="external-url" dir="ltr" tabindex="0"></p>
+      <p id="external-insecure" hidden>
+        HTTPのリンクです。通信は暗号化されません。
+      </p>
+      <p id="external-error" role="status"></p>
+      <div class="external-actions">
+        <button id="external-cancel" autofocus>キャンセル</button>
+        <button id="external-open" disabled>ブラウザで開く</button>
+      </div>
+    </dialog>
+    <div id="chrome">
+      <header>
+        <strong>md-viewer</strong><span id="name"></span>
+        <button id="menu-toggle" aria-expanded="false" aria-controls="tools">
+          メニュー
+        </button>
+      </header>
+      <div id="tools" hidden>
+        <button id="back" disabled>戻る</button>
+        <button id="forward" disabled>進む</button>
+        <button id="open">ファイルを開く</button>
+        <button id="find-toggle">検索</button>
+        <button id="contents" aria-expanded="false" aria-controls="outline">
+          目次
+        </button>
+        <button id="smaller" aria-label="文字を小さく">A−</button>
+        <button id="larger" aria-label="文字を大きく">A＋</button>
+        <button id="theme">明暗</button>
+        <button
+          id="settings-toggle"
+          aria-expanded="false"
+          aria-controls="settings"
+        >
+          表示設定
+        </button>
+      </div>
+      <section id="settings" hidden aria-label="表示設定">
+        <label id="restore-label" for="restore-session">前回のタブを復元</label
+        ><input id="restore-session" type="checkbox" checked />
+        <label for="language">表示言語</label
+        ><select id="language">
+          <option value="ja">日本語</option>
+          <option value="en">English</option></select
+        ><label id="foreground-label" for="foreground">文字色</label
+        ><input id="foreground" type="color" value="#292e32" /><label
+          id="background-label"
+          for="background"
+          >背景色</label
+        ><input id="background" type="color" value="#faf9f6" /><label
+          id="preset-label"
+          for="preset"
+          >配色</label
+        ><select id="preset">
+          <option value="paper">標準</option>
+          <option value="night">夜</option>
+          <option value="warm">暖色</option></select
+        ><label id="width-label" for="width">読み幅</label
+        ><input id="width" type="range" min="28" max="60" value="44" /><button
+          id="reset"
+        >
+          初期値に戻す</button
+        ><output id="contrast" role="status"></output>
+      </section>
+      <section hidden class="search" aria-label="文書内検索">
+        <label for="search-scope" id="scope-label">検索範囲</label>
+        <select id="search-scope">
+          <option value="document">この文書</option>
+          <option value="tabs">開いているタブ</option>
+        </select>
+        <label for="query">検索語</label
+        ><input id="query" type="search" /><button id="previous">前</button
+        ><button id="next">次</button
+        ><output id="count" aria-live="polite"></output>
+        <button
+          id="results-toggle"
+          hidden
+          aria-expanded="false"
+          aria-controls="search-results"
+        >
+          検索結果
+        </button>
+        <div id="search-results" hidden aria-label="検索結果"></div>
+      </section>
+      <nav id="tabs" aria-label="開いている文書"></nav>
+      <p id="status" role="status"></p>
+      <button id="quit-without-session" hidden>保存せず終了</button>
+    </div>
+    <div class="layout">
+      <nav id="outline" aria-label="目次" hidden></nav>
+      <main id="main" tabindex="-1">
+        <article id="document">
+          <div class="empty">
+            <p class="eyebrow">読むことに、集中。</p>
+            <h1>文書をここに。</h1>
+            <p>
+              Markdownファイルをドロップするか、<br />「ファイルを開く」から選んでください。
+            </p>
+            <p class="hint">元の文書は変更しません。</p>
+          </div>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

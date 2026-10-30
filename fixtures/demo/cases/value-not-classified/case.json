@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "value-not-classified",
+  "title": "許可項目の値の意味は検査しない",
+  "kind": "limitation",
+  "synthetic": true,
+  "response_file": "cases/value-not-classified/response.json",
+  "expected": {
+    "content_check": "passed"
+  },
+  "lesson": "内容検査は通過します。許可されたnameの値の意味・出所や、秘密かどうかは検査していません。",
+  "highlights": [
+    {
+      "id": "value-limit",
+      "source": "response",
+      "start_line": 5,
+      "end_line": 5,
+      "expected_text": "    \"name\": \"SYNTHETIC_VALUE_NOT_CLASSIFIED\"",
+      "label": "値の意味・出所は検査対象外"
+    }
+  ]
+}

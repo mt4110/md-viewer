@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "id": "boundary-demo",
+  "version": 1,
+  "policy_file": "policy.json",
+  "contract": "sample.customers",
+  "context_file": "context.json",
+  "cases": [
+    "cases/allowed/case.json",
+    "cases/foreign-tenant/case.json",
+    "cases/unauthorized-id/case.json",
+    "cases/extra-field/case.json",
+    "cases/value-not-classified/case.json"
+  ]
+}

@@ -1,0 +1,5 @@
+[workspace]
+members = ["reader"]
+default-members = ["reader"]
+exclude = ["legacy-lab"]
+resolver = "3"
