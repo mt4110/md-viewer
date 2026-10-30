@@ -149,7 +149,8 @@ CIのビルド・テストと、Windows実機でのOS連携やインストーラ
 ## 所有者向けの配布候補検証
 
 [Package Windows test candidate](.github/workflows/package-candidate.yml)は、feat/md-viewerの対象変更時に
-未署名の日本語NSISセットアップ、対応ソース、SHA-256をActionsの成果物として7日間保存します。
+未署名の日本語NSISセットアップ、対応ソース、SHA-256を生成して検証します。
+成果物のアップロードは既定で無効です。第三者権利表示と共有範囲を確認した後、手動実行のupload_artifactで明示的に選んだ場合だけ7日間保存します。
 タグやGitHub Releaseは作成しません。第三者権利表示の確認が未完了のため、一般配布用とは扱いません。
 [Windows実機での確認手順](docs/markdown-reader/WINDOWS_MANUAL_CHECK.md)は、画面を接続できるときに実施してください。
 

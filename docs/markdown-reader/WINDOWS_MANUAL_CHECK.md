@@ -9,7 +9,8 @@ GitHub Releaseやタグは作成しない。夜間にモニターを接続でき
 2. Windowsのエディション・バージョンと表示倍率を記録する。IPアドレスはUbuntuと同じとは限らない。
 3. 必要ならMacからの接続方法を検討する。SSHやリモートデスクトップの有効化は、接続範囲・認証方法を決めてから扱う。
 4. Package Windows test candidateの対象コミットと、Check md-viewerの成功を確認する。
-5. Actionsの成果物を取得・展開し、インストーラーのSHA-256をINSTALLER_SHA256SUMSと照合する。
+5. 成果物のアップロードは既定で無効。第三者権利表示と共有範囲を確認してから保存方法を選ぶ。
+   upload_artifactを明示的に有効にして保存した場合は、Actionsから取得・展開し、SHA-256をINSTALLER_SHA256SUMSと照合する。
 
 ## 確認する操作
 
