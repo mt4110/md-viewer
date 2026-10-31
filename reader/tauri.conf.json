@@ -11,6 +11,12 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "license": "MIT",
+    "resources": {
+      "LICENSE": "LICENSE.txt",
+      "resources/notices/THIRD_PARTY_NOTICES.txt": "THIRD_PARTY_NOTICES.txt",
+      "resources/notices/THIRD_PARTY_NOTICES.json": "THIRD_PARTY_NOTICES.json"
+    },
     "icon": ["icons/icon.png", "icons/icon.ico"],
     "fileAssociations": [{ "ext": ["md", "markdown"], "name": "Markdown", "role": "Viewer" }],
     "windows": { "webviewInstallMode": { "type": "embedBootstrapper" }, "nsis": { "languages": ["Japanese"], "installMode": "currentUser" } }

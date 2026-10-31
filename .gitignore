@@ -3,3 +3,4 @@
 
 /node_modules/
 /legacy-lab/target/
+/tools/__pycache__/

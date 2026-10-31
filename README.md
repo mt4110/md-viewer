@@ -2,11 +2,14 @@
 
 **Markdownの表示方法を知らなくても、受け取った文書を開いて読める、ローカルのMarkdownビューアー。**
 
-AIが作った説明書、仕事で受け取った手順書、調査メモなどの `.md` ファイルを、見出し・表・画像のある文書として表示するアプリを作ります。
+AIが作った説明書、仕事で受け取った手順書、調査メモなどの `.md` ファイルを、見出し・表・画像のある文書として表示するアプリです。
 対象は、エディタの設定やブラウザ拡張の導入をせずに文書を読みたい人です。
 
-**現在はローカル試作段階です。macOSで本文表示・目次・検索・文字サイズ・基本タブを確認しました。Windowsと配布用インストーラーは未検証です。**
-WindowsとmacOSを対象に、Rustを中核として開発する予定です。
+**現在は0.1.0の公開準備中です。所有者がHPのWindows 11 Pro本体で、未署名のx64インストーラーからの導入・起動を確認しました。**
+Windows・macOSのCIでRust・UI回帰・releaseビルドを確認しています。macOSの本文表示・目次・検索・文字サイズ・基本タブはローカル試作で確認しました。
+WindowsのIME・読み上げ・関連付け・更新・アンインストール等の全受入確認は未完了です。確認範囲は[Windowsの検証記録](docs/markdown-reader/VALIDATION_WINDOWS_0_1_0.md)を参照してください。
+公開候補はWindows x64の未署名セットアップと対応ソースです。Gitの署名タグはWindowsアプリのコード署名とは別で、SACやSmartScreenでの許可を保証しません。
+macOSの配布用アプリのDeveloper ID署名・公証は未完了です。
 
 ## こんなときに使う
 
@@ -148,11 +151,12 @@ CIのビルド・テストと、Windows実機でのOS連携やインストーラ
 
 ## 所有者向けの配布候補検証
 
-[Package Windows test candidate](.github/workflows/package-candidate.yml)は、feat/md-viewerの対象変更時に
+[Package Windows test candidate](.github/workflows/package-candidate.yml)は、feat/md-viewerの対象変更時または手動実行で
 未署名の日本語NSISセットアップ、対応ソース、SHA-256を生成して検証します。
-成果物のアップロードは既定で無効です。第三者権利表示と共有範囲を確認した後、手動実行のupload_artifactで明示的に選んだ場合だけ7日間保存します。
-タグやGitHub Releaseは作成しません。第三者権利表示の確認が未完了のため、一般配布用とは扱いません。
-[Windows実機での確認手順](docs/markdown-reader/WINDOWS_MANUAL_CHECK.md)は、画面を接続できるときに実施してください。
+成果物のアップロードは既定で無効です。権利表示と共有範囲を確認した後、手動実行のupload_artifactで明示的に選んだ場合だけ7日間保存します。
+このCIはタグやGitHub Releaseを作成しません。公開は最終コミット・CI・成果物を照合した後に判断します。
+セットアップにはLICENSE.txtとTHIRD_PARTY_NOTICES.txt/jsonを同梱します。固定依存の本文・帰属表示・該当ソースの取得先を収録し、不足や生成物の不一致をCIで拒否します。
+[Windows実機での確認手順](docs/markdown-reader/WINDOWS_MANUAL_CHECK.md)で、実施済みと未実施を区別しています。
 
 梱包用CLIは@tauri-apps/cli 2.12.4へ固定しています。macOSはreader/で以下を実行します。
 既存の成果物を上書きしないよう、別の作業場所と新しいCARGO_TARGET_DIRを使用してください。

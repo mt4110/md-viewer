@@ -1,7 +1,9 @@
 # セキュリティ
 
-未リリースの試作です。現在検証済みの環境はmacOSのApple Siliconのみです。
-WindowsのCI定義はありますが、成功や実機動作を未確認のまま対応済みとは表示しません。
+未リリースの試作です。Windows・macOSのCIでRustチェック・UI回帰・releaseビルドが成功し、所有者はHPのWindows 11 Pro本体で未署名x64候補の導入・起動を確認しました。
+macOSのApple Siliconでもローカル試作の基本操作を確認しています。Windowsの全受入項目・第三者利用・全SAC環境での実行許可を確認したものではありません。
+署名タグはWindowsのコード署名・macOSの署名や公証を代替しません。アプリのためにOSの保護機能を無効化することを前提にしません。
+[Windowsの確認範囲と既知のランタイム問題](docs/markdown-reader/VALIDATION_WINDOWS_0_1_0.md)を参照してください。
 
 Markdownは信頼できない入力として扱い、生HTMLを実行せず、外部リンクはURL確認後だけ標準ブラウザに渡します。
 画像の個数・合計画素・バイト数、文書とキャッシュに上限があります。
