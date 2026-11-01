@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Create a fresh, ad-hoc-signed macOS development bundle. Never replace a bundle."""
 import argparse
+import json
 import pathlib
 import plistlib
 import shutil
@@ -18,6 +19,7 @@ def main():
     if bundle.exists() or bundle.is_symlink():
         parser.error('Output exists; choose a new .app path')
     root = pathlib.Path(__file__).resolve().parents[1]
+    version = json.loads((root / 'reader/tauri.conf.json').read_text(encoding='utf-8'))['version']
     subprocess.run(['rustup', 'run', '1.95.0', 'cargo', 'build', '--manifest-path',
                     str(root / 'reader/Cargo.toml'), '--locked'], check=True)
     bundle.mkdir(parents=True, exist_ok=False)
@@ -28,7 +30,7 @@ def main():
         plistlib.dump({'CFBundleExecutable': 'md-viewer',
                        'CFBundleIdentifier': 'io.github.mt4110.mdviewer',
                        'CFBundleName': 'md-viewer', 'CFBundlePackageType': 'APPL',
-                       'CFBundleVersion': '0.1.0', 'CFBundleShortVersionString': '0.1.0',
+                       'CFBundleVersion': version, 'CFBundleShortVersionString': version,
                        'NSHighResolutionCapable': True,
                        'CFBundleDocumentTypes': [{'CFBundleTypeName': 'Markdown',
                          'CFBundleTypeRole': 'Viewer', 'CFBundleTypeExtensions': ['md', 'markdown']}]}, file)

@@ -5,11 +5,23 @@ import gzip
 import hashlib
 import io
 import json
+import re
+import tomllib
 from pathlib import Path
 import tarfile
 from generate_notices import generated_notices, OUTPUT
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def source_version(root=ROOT):
+    version = json.loads((root / 'reader/tauri.conf.json').read_text(encoding='utf-8'))['version']
+    cargo_version = tomllib.loads((root / 'reader/Cargo.toml').read_text(encoding='utf-8'))['package']['version']
+    if not isinstance(version, str) or re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', version) is None:
+        raise ValueError('Expected a numeric major.minor.patch release version')
+    if version != cargo_version:
+        raise ValueError('Cargo and Tauri versions must match')
+    return version
 
 
 def main():
@@ -18,6 +30,7 @@ def main():
     args = parser.parse_args()
     if args.output.exists():
         parser.error('Choose a new output directory')
+    version = source_version()
     notices = generated_notices()
     for name, text in notices.items():
         path = ROOT / OUTPUT / name
@@ -26,7 +39,8 @@ def main():
     names = ['Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml', 'package.json',
              'package-lock.json', '.gitignore', '.gitattributes', '.markdownlint-cli2.jsonc',
              'SECURITY.md', 'LICENSE-SCOPE.md', 'tools/package_md_viewer.py', 'tools/build_dev_app.py',
-             'tools/generate_notices.py', 'tools/license_overrides.json', 'tools/test_notices.py']
+             'tools/generate_notices.py', 'tools/license_overrides.json', 'tools/test_notices.py',
+             'tools/test_packaging.py']
     names.extend(f.relative_to(ROOT).as_posix() for f in (ROOT / 'tools/licenses').rglob('*') if f.is_file())
     for directory in ['reader', '.cargo', '.github', 'docs/markdown-reader']:
         for file in (ROOT / directory).rglob('*'):
@@ -44,7 +58,7 @@ def main():
         entries[name] = text.encode()
     entries['SOURCE_MANIFEST.json'] = json.dumps({name: hashlib.sha256(data).hexdigest() for name, data in entries.items()}, indent=2).encode()
     args.output.mkdir(parents=True, exist_ok=False)
-    archive = args.output / 'md-viewer-0.1.0-source.tar.gz'
+    archive = args.output / f'md-viewer-{version}-source.tar.gz'
     with archive.open('xb') as stream:
         with gzip.GzipFile(filename='', mode='wb', fileobj=stream, mtime=0) as zipped:
             with tarfile.open(fileobj=zipped, mode='w') as tar:

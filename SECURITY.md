@@ -1,8 +1,13 @@
 # セキュリティ
 
+v0.1.1はWindows 11 x64の未署名試用版として準備しています。SAC・SmartScreen・組織のポリシー等でブロックされる場合があります。
+拒否された場合は導入を中止してください。SAC・Defender・署名検証の無効化、除外設定、自己署名証明書の信頼登録は利用条件にしません。
+チェックサムとGit署名は配布物の対応・改変確認に使うもので、Windowsの実行許可や安全性を保証しません。
+[Windows試用版の案内](docs/markdown-reader/WINDOWS_TRIAL_v0.1.1.md)に、対象環境と検証の限界を記載します。
+
 v0.1.0は開発者向けのソース版です。Windows・macOSのCIでRustチェック・UI回帰・releaseビルドが成功しています。
 所有者はHPのWindows 11 Pro本体で旧未署名x64候補の導入・起動を確認しましたが、再梱包後の新候補はSACに開始前に拒否されました。
-Windowsインストーラーと未署名MSIX試作、macOSの配布用アプリは、このReleaseに添付しません。
+Windowsインストーラーと未署名MSIX試作、macOSの配布用アプリは、v0.1.0のReleaseには添付していません。
 macOSのApple Siliconでもローカル試作の基本操作を確認しています。Windowsの全受入項目・第三者利用・全SAC環境での実行許可を確認したものではありません。
 署名タグはWindowsのコード署名・macOSの署名や公証を代替しません。アプリのためにOSの保護機能を無効化することを前提にしません。
 [Windowsの確認範囲と既知のランタイム問題](docs/markdown-reader/VALIDATION_WINDOWS_0_1_0.md)を参照してください。
