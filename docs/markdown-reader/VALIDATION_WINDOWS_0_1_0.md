@@ -1,6 +1,6 @@
 # Windows 0.1.0候補の確認範囲
 
-記録日：2026-10-31。公開対象はWindows x64の未署名候補と対応ソース。コード署名の購入・署名タグのpush・リリース公開は別の判断とする。
+更新日：2026-11-01。v0.1.0はソース版として公開する。Windows x64の未署名インストーラーとMSIX試作はReleaseへ添付しない。
 
 ## 実機とCI
 
@@ -8,9 +8,23 @@
 この確認は2026-10-30作成の旧候補に対するもので、権利表示を追加して再梱包した候補のハッシュや導入結果と同一には扱わない。
 旧候補のSHA-256は3e67f59e03b92c01f015274b6dc5bfd20501f1b50a03da19a7acdce998786b26。
 
-CI成功済みの基準コードは9f2ecab93c70d89a841036651941a0d51978eaa3。
+権利表示を追加した基準コミットはbedef0083fd62b07ac07bc4d3c25f35c71031124。
 Windows・macOSの整形、Clippy、Rust試験、UI回帰、releaseビルドとWindowsのNSIS作成を確認した。
-権利表示・文書の修正後は、その最終コミットのCIと候補を改めて照合する。最新の実行結果は[Check](https://github.com/mt4110/md-viewer/actions/workflows/check.yml)と[Package](https://github.com/mt4110/md-viewer/actions/workflows/package-candidate.yml)で対象SHAを確認する。
+ソース版の公開文書を反映した最終コミットは、v0.1.0タグとReleaseのCIリンクで照合する。実行結果は[Check](https://github.com/mt4110/md-viewer/actions/workflows/check.yml)と[Package](https://github.com/mt4110/md-viewer/actions/workflows/package-candidate.yml)で対象SHAを確認する。
+
+## 再梱包後の候補とSAC
+
+新しいNSIS候補のSHA-256は47b2c120163d518c3d84f8705508e9882a3e69bd68eeb0cc4ec72fe12d4b4d64。
+HP本体のSAC強制適用環境で起動を試み、アプリケーション制御ポリシーによりセットアップの開始前に拒否された。
+Code Integrityイベント3077の対象パスが新候補と一致し、ポリシーはVerifiedAndReputableDesktop、状態コードは0xc0e90002だった。
+通常導入・起動の成功とは扱わない。SACやDefenderの解除、信頼ルートの追加、例外登録はしていない。
+
+セットアップを実行せず抽出し、製品MIT本文と第三者表示のTXT/JSONが対応ソースとバイト単位で一致することを確認した。
+アプリ本体とNSIS補助DLLは未署名で、WebView2ブートストラッパーのMicrosoft署名は有効だった。アンインストーラーの生成後の実体は未検査。
+
+2026-11-01に、本体と権利表示を使ったローカル検証用MSIXをMakeAppxの検証を有効にしたまま作成した。
+入力8ファイルと248個のSHA-256ブロックが一致したが、仮Identity・未署名であり、インストール・起動・Store提出・Store署名はしていない。
+梱包の成功をSAC下の導入成功に流用しない。署名・配布経路の採用は別途判断する。
 
 ## Sandboxの結果と制約
 
