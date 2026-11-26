@@ -53,7 +53,7 @@ const doc = JSON.parse(
     });
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
-    await loadReader(page, 
+    await loadReader(page,
       pathToFileURL(path.join(root, "reader/ui/index.html")).href,
     );
     await page.evaluate((d) => {

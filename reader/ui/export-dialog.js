@@ -67,4 +67,3 @@ $("export-word").onclick = () => {
   runExport("export_word", draft ? { source: draft.source, markdown: draft.markdown } : { source: readingState.active });
 };
 $("export-google").onclick = () => runExport("open_google_docs");
-

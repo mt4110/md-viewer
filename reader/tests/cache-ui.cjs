@@ -12,7 +12,7 @@ const { pathToFileURL } = require("node:url");
   );
   try {
     const p = await browser.newPage();
-    await loadReader(p, 
+    await loadReader(p,
       pathToFileURL(path.resolve(__dirname, "../ui/index.html")).href,
     );
     await p.evaluate(async () => {
