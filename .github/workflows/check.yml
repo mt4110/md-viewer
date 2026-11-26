@@ -19,6 +19,8 @@ jobs:
       - run: rustup toolchain install 1.95.0 --profile minimal --component rustfmt --component clippy
       - run: python -m unittest discover -s tools -p test_notices.py
       - run: python tools/generate_notices.py --check
+      - if: runner.os == 'macOS'
+        run: node reader/packaging/generate-macos-notices.mjs --check
       - run: npm ci --ignore-scripts
       - run: npm run check:source-size
       - run: npx playwright install chromium

@@ -4,7 +4,7 @@ import { extname } from "node:path";
 const limit = 256;
 const sourceExtensions = new Set([".rs", ".js", ".mjs", ".css", ".html"]);
 const reader = new URL("../", import.meta.url);
-const sources = ["src/", "ui/", "format/"];
+const sources = ["src/", "ui/", "format/", "packaging/"];
 const violations = [];
 
 async function checkDirectory(directory) {

@@ -14,8 +14,7 @@
     "license": "MIT",
     "resources": {
       "LICENSE": "LICENSE.txt",
-      "resources/notices/THIRD_PARTY_NOTICES.txt": "THIRD_PARTY_NOTICES.txt",
-      "resources/notices/THIRD_PARTY_NOTICES.json": "THIRD_PARTY_NOTICES.json"
+      "ui/vendor/MARKDOWNLINT-NOTICES.txt": "MARKDOWNLINT-NOTICES.txt"
     },
     "icon": ["icons/icon.png", "icons/icon.ico", "icons/icon.icns"],
     "fileAssociations": [{ "ext": ["md", "markdown"], "name": "Markdown", "role": "Viewer" }],
