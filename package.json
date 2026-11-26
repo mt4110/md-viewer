@@ -2,11 +2,15 @@
   "name": "md-viewer-checks",
   "private": true,
   "scripts": {
+    "check:source-size": "node reader/format/check-source-size.mjs",
     "check:rust": "rustup run 1.95.0 cargo fmt --all --check && rustup run 1.95.0 cargo clippy --workspace --all-targets --locked -- -D warnings && rustup run 1.95.0 cargo test --workspace --locked",
     "test:ui": "node reader/tests/search-ui.cjs && node reader/tests/navigation-ui.cjs && node reader/tests/external-ui.cjs && node reader/tests/cache-ui.cjs",
-    "check:docs": "markdownlint-cli2 --config .markdownlint-cli2.jsonc"
+    "check:docs": "markdownlint-cli2 --config .markdownlint-cli2.jsonc",
+    "build:formatter": "node reader/format/build.mjs"
   },
   "devDependencies": {
+    "esbuild": "0.28.2",
+    "markdownlint": "0.42.0",
     "markdownlint-cli2": "0.24.0",
     "playwright": "1.58.2"
   },

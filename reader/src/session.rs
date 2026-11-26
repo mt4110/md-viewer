@@ -48,6 +48,7 @@ pub struct LoadedSession {
 fn hash_valid(s: &str) -> bool {
     s.len() == 16 && s.bytes().all(|b| b.is_ascii_hexdigit())
 }
+
 pub fn valid_path(s: &str) -> bool {
     let p = Path::new(s);
     if !p.is_absolute() || s.len() > 32768 || s.contains('\0') {
@@ -104,6 +105,33 @@ impl SessionStore {
         Self {
             path: directory.join("session.json"),
         }
+    }
+
+    pub fn load_draft(&self) -> Result<Option<String>, String> {
+        let path = self.path.with_file_name("recovery.md");
+        match fs::symlink_metadata(&path) {
+            Ok(_) => crate::document::read_markdown_at(&path)
+                .map(|text| (!text.is_empty()).then_some(text)),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(None),
+            Err(_) => Err("下書きを復元できませんでした。".into()),
+        }
+    }
+
+    pub fn save_draft(&self, markdown: Option<&str>) -> Result<(), String> {
+        let text = markdown.unwrap_or_default();
+        if text.len() as u64 > crate::document::MAX_DOCUMENT {
+            return Err("文書サイズ上限です。".into());
+        }
+        let failed = "下書きを自動保存できませんでした。";
+        let parent = self.path.parent().ok_or(failed)?;
+        fs::create_dir_all(parent).map_err(|_| failed)?;
+        let mut file = tempfile::NamedTempFile::new_in(parent).map_err(|_| failed)?;
+        file.write_all(text.as_bytes())
+            .and_then(|_| file.as_file().sync_all())
+            .map_err(|_| failed)?;
+        file.persist(self.path.with_file_name("recovery.md"))
+            .map_err(|_| failed)?;
+        Ok(())
     }
     pub fn load(&self) -> Result<LoadedSession, String> {
         let file = match fs::File::open(&self.path) {
@@ -176,5 +204,25 @@ impl SessionStore {
         file.persist(&self.path)
             .map_err(|_| "復元情報を置き換えられません。前回の情報を保持しています。")?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod recovery_tests {
+    use super::SessionStore;
+
+    #[test]
+    fn recovers_latest_draft_and_clears_it_after_save_or_discard() {
+        let directory = tempfile::tempdir().unwrap();
+        let store = SessionStore::new(directory.path());
+        assert_eq!(store.load_draft().unwrap(), None);
+        store.save_draft(Some("# 下書き\n")).unwrap();
+        let reopened = SessionStore::new(directory.path());
+        assert_eq!(
+            reopened.load_draft().unwrap().as_deref(),
+            Some("# 下書き\n")
+        );
+        reopened.save_draft(None).unwrap();
+        assert_eq!(store.load_draft().unwrap(), None);
     }
 }

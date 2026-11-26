@@ -1,0 +1,115 @@
+.writing #name,
+.writing #write-toggle,
+.writing #menu-toggle,
+.writing #tabs,
+.writing .search {
+  display: none;
+}
+.writing header strong {
+  margin-inline-end: auto;
+}
+#writer {
+  max-width: 100rem;
+  margin-inline: auto;
+  padding: 0 24px 24px;
+}
+.writer-toolbar,
+.writer-options,
+.writer-pane-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+}
+.writer-options {
+  margin-top: 8px;
+  gap: 6px 14px;
+}
+.writer-options label {
+  white-space: nowrap;
+}
+#writer-name {
+  flex: 1;
+  min-width: min(14ch, 100%);
+  overflow-wrap: anywhere;
+}
+#writer-dirty {
+  color: var(--muted);
+}
+#writer-save {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+#writer-status {
+  min-height: 1.3em;
+  margin: 8px 0;
+  color: var(--accent);
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+.writer-panes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  height: max(23rem, calc(100dvh - 150px));
+}
+.writer-pane {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.writer-pane-label,
+.writer-pane-tabs {
+  display: flex;
+  align-items: center;
+  min-height: 46px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.writer-pane-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.writer-pane-tabs button {
+  padding: 5px 10px;
+}
+.writer-pane-tabs [aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+#markdown-input {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  resize: none;
+  border: 0;
+  padding: 16px;
+  outline-offset: -3px;
+  background: var(--paper);
+  color: var(--ink);
+  font: 0.875rem/1.65 ui-monospace, Menlo, Consolas, monospace;
+}
+#markdown-input:focus-visible {
+  outline: 2px solid var(--accent);
+}
+.writer-pane-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+#writer-document {
+  padding: 16px;
+  margin: 0;
+  max-width: none;
+}
+#writer-document > :first-child {
+  margin-top: 0;
+}
+#writer-preview-empty,
+#writer-guide {

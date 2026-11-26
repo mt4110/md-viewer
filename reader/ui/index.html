@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>md-viewer</title>
     <link rel="stylesheet" href="reader.css" />
-    <script defer src="reader.js"></script>
+    <script type="module" src="reader.js"></script>
   </head>
   <body>
     <dialog
@@ -31,9 +31,33 @@
         <button id="external-open" disabled>ブラウザで開く</button>
       </div>
     </dialog>
+    <dialog id="export-dialog" aria-labelledby="export-title" aria-describedby="export-name">
+      <h2 id="export-title">書き出す</h2>
+      <p id="export-name" dir="auto"></p>
+      <div class="export-options">
+        <button id="export-pdf" aria-describedby="export-pdf-help" autofocus>PDF</button>
+        <p id="export-pdf-help">印刷プレビューで用紙と改ページを確認してPDFとして保存します。</p>
+        <button id="export-word" aria-describedby="export-word-help">Word（.docx）</button>
+        <p id="export-word-help">編集できるWord文書を保存します。</p>
+        <button id="export-google" aria-describedby="export-google-help">Google ドキュメントを開く</button>
+        <p id="export-google-help">Google ドキュメントで「ファイル → 開く → アップロード」から元のMarkdownを選びます。</p>
+      </div>
+      <p id="export-status" role="status"></p>
+      <div class="external-actions"><button id="export-close">閉じる</button></div>
+    </dialog>
+    <dialog id="draft-close-dialog" aria-labelledby="draft-close-title">
+      <h2 id="draft-close-title">編集中の内容を保存しますか？</h2>
+      <div class="external-actions">
+        <button id="draft-discard">破棄</button>
+        <button id="draft-cancel" autofocus>キャンセル</button>
+        <button id="draft-close-save">保存</button>
+      </div>
+    </dialog>
     <div id="chrome">
       <header>
         <strong>md-viewer</strong><span id="name"></span>
+        <button id="write-toggle">書く</button>
+        <button id="export-toggle" aria-haspopup="dialog" disabled>書き出す</button>
         <button id="menu-toggle" aria-expanded="false" aria-controls="tools">
           メニュー
         </button>
@@ -42,6 +66,7 @@
         <button id="back" disabled>戻る</button>
         <button id="forward" disabled>進む</button>
         <button id="open">ファイルを開く</button>
+        <button id="new-draft">Markdownを新規作成</button>
         <button id="find-toggle">検索</button>
         <button id="contents" aria-expanded="false" aria-controls="outline">
           目次
@@ -54,10 +79,10 @@
           aria-expanded="false"
           aria-controls="settings"
         >
-          表示設定
+          設定
         </button>
       </div>
-      <section id="settings" hidden aria-label="表示設定">
+      <section id="settings" hidden aria-label="設定">
         <label id="restore-label" for="restore-session">前回のタブを復元</label
         ><input id="restore-session" type="checkbox" checked />
         <label for="language">表示言語</label
@@ -83,6 +108,18 @@
         >
           初期値に戻す</button
         ><output id="contrast" role="status"></output>
+        <section class="settings-update" aria-labelledby="update-title">
+          <h2 id="update-title">アップデート</h2>
+          <p id="app-version" hidden>
+            <span id="app-version-label">現在のバージョン</span>
+            <span id="app-version-value" dir="ltr"></span>
+          </p>
+          <div class="update-actions">
+            <button id="check-update">更新を確認</button>
+            <button id="open-releases" hidden>GitHub のリリースを開く</button>
+          </div>
+          <p id="update-status" role="status"></p>
+        </section>
       </section>
       <section hidden class="search" aria-label="文書内検索">
         <label for="search-scope" id="scope-label">検索範囲</label>
@@ -108,7 +145,58 @@
       <p id="status" role="status"></p>
       <button id="quit-without-session" hidden>保存せず終了</button>
     </div>
-    <div class="layout">
+    <section id="writer" hidden aria-labelledby="writer-name">
+      <div class="writer-toolbar">
+        <button id="writer-back">閲覧に戻る</button>
+        <strong id="writer-name" dir="auto"></strong>
+        <span id="writer-dirty" hidden>未保存</span>
+        <button id="writer-format">整形</button>
+        <button id="writer-save">保存</button>
+        <button id="writer-save-as">別名で保存</button>
+      </div>
+      <div class="writer-options">
+        <label><input type="checkbox" id="writer-autosave" checked /> <span id="writer-autosave-label">ファイルを自動保存</span></label>
+        <label><input type="checkbox" id="writer-format-on-save" checked /> <span id="writer-format-on-save-label">保存時に整形</span></label>
+      </div>
+      <p id="writer-status" role="status"></p>
+      <div class="writer-panes">
+        <div class="writer-pane" id="writer-edit">
+          <label class="writer-pane-label" for="markdown-input">Markdown</label>
+          <textarea id="markdown-input" spellcheck="false"></textarea>
+        </div>
+        <div class="writer-pane">
+          <div class="writer-pane-tabs">
+            <button id="writer-preview-toggle" aria-controls="writer-preview" aria-pressed="true">プレビュー</button>
+            <button id="writer-guide-toggle" aria-controls="writer-guide" aria-pressed="false">書き方</button>
+          </div>
+          <div id="writer-preview" class="writer-pane-body" aria-labelledby="writer-preview-toggle">
+            <article id="writer-document"></article>
+            <p id="writer-preview-empty"></p>
+          </div>
+          <div id="writer-guide" class="writer-pane-body" hidden aria-labelledby="writer-guide-toggle">
+            <section id="guide-suggest" aria-labelledby="guide-suggest-title">
+              <h3 id="guide-suggest-title">Suggest</h3>
+              <label id="guide-query-label" for="guide-query">何を書きたいですか？</label>
+              <input id="guide-query" type="search" autocomplete="off" />
+              <div id="guide-intents" class="guide-actions"></div>
+              <p id="guide-search-status" role="status"></p>
+              <button id="guide-clear" type="button" hidden>すべてのサンプル</button>
+            </section>
+            <section id="guide-toc" aria-labelledby="guide-toc-title">
+              <h3 id="guide-toc-title" tabindex="-1">目次</h3>
+              <ul id="guide-categories"></ul>
+            </section>
+            <p id="writer-guide-help"></p>
+            <div id="writer-samples"></div>
+            <section id="guide-references" aria-labelledby="guide-references-title">
+              <h3 id="guide-references-title" tabindex="-1">公式資料</h3>
+              <ul id="guide-links"></ul>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="layout" id="reading-layout">
       <nav id="outline" aria-label="目次" hidden></nav>
       <main id="main" tabindex="-1">
         <article id="document">

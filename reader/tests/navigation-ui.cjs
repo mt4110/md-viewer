@@ -1,3 +1,4 @@
+const { loadReader } = require("./reader-fixture.cjs");
 // Permanent regression checks. Requires Playwright and Chromium; IPC is mocked.
 const { chromium } = require("playwright");
 const assert = require("node:assert/strict");
@@ -40,9 +41,10 @@ const doc = JSON.parse(
 );
 (async () => {
   const browser = await chromium.launch(
-    process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
-      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE }
-      : {},
+    {
+      executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,
+      args: ["--allow-file-access-from-files"],
+    },
   );
   try {
     const page = await browser.newPage({
@@ -51,7 +53,7 @@ const doc = JSON.parse(
     });
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
-    await page.goto(
+    await loadReader(page, 
       pathToFileURL(path.join(root, "reader/ui/index.html")).href,
     );
     await page.evaluate((d) => {

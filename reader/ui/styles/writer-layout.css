@@ -1,0 +1,33 @@
+@media screen and (min-width: 651px) {
+  body.writing {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+  .writing #writer {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
+  }
+  .writing .writer-panes {
+    flex: 1;
+    height: auto;
+    min-height: 18rem;
+  }
+}
+@media screen and (max-width: 650px) {
+  #writer {
+    padding-inline: 12px;
+  }
+  .writer-panes {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+  }
+  .writer-pane {
+    min-height: 14rem;
+  }
+  .writer-pane-body {
+    max-height: 28rem;
+  }
+}

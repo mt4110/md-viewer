@@ -1,0 +1,81 @@
+#external-dialog,
+#export-dialog,
+#draft-close-dialog {
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  width: min(42rem, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  padding: 24px;
+  overflow: auto;
+}
+#external-dialog::backdrop,
+#export-dialog::backdrop,
+#draft-close-dialog::backdrop {
+  background: #0006;
+}
+#external-dialog h2,
+#export-dialog h2,
+#draft-close-dialog h2 {
+  margin-top: 0;
+  font-size: 1.25rem;
+}
+#external-host,
+#external-url {
+  direction: ltr;
+  unicode-bidi: isolate;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+#external-url {
+  padding: 12px;
+  border: 1px solid var(--line);
+  max-height: 35vh;
+  overflow: auto;
+  font-family: ui-monospace, monospace;
+}
+#external-insecure,
+#external-error {
+  font-weight: 600;
+}
+.external-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+#export-name {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.export-options {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: start;
+  gap: 12px 16px;
+}
+
+.export-options button {
+  text-align: start;
+}
+
+.export-options p {
+  margin: 0;
+  align-self: center;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 560px) {
+  .export-options {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .export-options p:not(:last-child) {
+    margin-bottom: 8px;
+  }
+}

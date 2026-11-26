@@ -1,3 +1,4 @@
+const { loadReader } = require("./reader-fixture.cjs");
 // Regression checks: real Rust rendering; mocked OS handoff. Never visits a web URL.
 const { chromium } = require("playwright");
 const assert = require("node:assert/strict"),
@@ -35,9 +36,10 @@ const doc = JSON.parse(
 );
 (async () => {
   const browser = await chromium.launch(
-    process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
-      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE }
-      : {},
+    {
+      executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,
+      args: ["--allow-file-access-from-files"],
+    },
   );
   try {
     const page = await browser.newPage({
@@ -51,7 +53,7 @@ const doc = JSON.parse(
       if (/^https?:/.test(r.url())) network.push(r.url());
     });
     const url = pathToFileURL(path.join(root, "reader/ui/index.html")).href;
-    await page.goto(url);
+    await loadReader(page, url);
     await page.evaluate((d) => {
       window.calls = [];
       window.counter = 0;

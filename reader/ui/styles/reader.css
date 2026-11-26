@@ -1,0 +1,170 @@
+#tabs {
+  display: flex;
+  width: 100%;
+  gap: 6px;
+  overflow: auto;
+  padding: 8px 24px;
+  border-bottom: 1px solid var(--line);
+}
+#tabs button {
+  white-space: nowrap;
+}
+#tabs [aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--paper);
+}
+
+#settings {
+  padding: 16px 24px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+select {
+  font: inherit;
+  color: inherit;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 7px;
+  border-radius: 7px;
+}
+input[type="color"] {
+  padding: 2px;
+  width: 44px;
+  height: 32px;
+}
+#contrast {
+  width: 100%;
+}
+
+header {
+  padding: 10px 24px;
+  border-bottom: 0;
+}
+header strong {
+  font-size: 13px;
+  color: var(--muted);
+}
+#menu-toggle {
+  font-size: 13px;
+}
+#tools {
+  position: fixed;
+  right: 20px;
+  top: 56px;
+  z-index: 5;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  max-width: min(440px, calc(100vw - 40px));
+  max-height: calc(100dvh - 72px);
+  overflow-y: auto;
+  padding: 16px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px #0002;
+}
+#tools #settings {
+  padding: 12px 0 0;
+  border: 0;
+}
+.settings-update {
+  width: 100%;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+.settings-update h2,
+.settings-update p {
+  margin: 0 0 8px;
+}
+.settings-update h2 {
+  font-size: 1em;
+}
+.update-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.update-actions button[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: default;
+}
+#update-status {
+  margin-top: 8px;
+  overflow-wrap: anywhere;
+}
+#update-status:empty {
+  margin: 0;
+}
+#tabs {
+  padding: 6px 24px;
+}
+#tabs button {
+  font-size: 13px;
+}
+article {
+  margin-top: 32px;
+}
+.search {
+  border-bottom: 1px solid var(--line);
+}
+
+/* Keep status changes from moving the reading surface. */
+#status {
+  min-height: 1.5em;
+}
+
+/* Keep tabs reachable without scrolling away from the reading position. */
+#chrome {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: var(--paper);
+}
+
+.search {
+  position: relative;
+}
+#search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: min(40vh, 20rem);
+  overflow: auto;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: 0 6px 16px #0002;
+  z-index: 6;
+}
+#search-results:empty {
+  display: none;
+}
+#search-results button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border-radius: 0;
+  padding: 0.6rem 1rem;
+}
+#search-results strong,
+#search-results span {
+  display: block;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+#search-results span {
+  font-size: 0.85rem;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+button:disabled:hover {
+  background: transparent;
+}

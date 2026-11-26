@@ -1,16 +1,18 @@
+const { loadReader } = require("./reader-fixture.cjs");
 const { chromium } = require("playwright");
 const assert = require("node:assert/strict"),
   path = require("node:path");
 const { pathToFileURL } = require("node:url");
 (async () => {
   const browser = await chromium.launch(
-    process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
-      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE }
-      : {},
+    {
+      executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,
+      args: ["--allow-file-access-from-files"],
+    },
   );
   try {
     const p = await browser.newPage();
-    await p.goto(
+    await loadReader(p, 
       pathToFileURL(path.resolve(__dirname, "../ui/index.html")).href,
     );
     await p.evaluate(async () => {
