@@ -1,3 +1,4 @@
+const { loadReader } = require("./reader-fixture.cjs");
 // Run with Playwright installed and its Chromium available. No network requests.
 const { chromium } = require("playwright");
 const assert = require("node:assert/strict");
@@ -45,9 +46,10 @@ function render(name, text) {
   );
   const c = render("C.md", "# C\n\n復元された 検索。\n");
   const browser = await chromium.launch(
-    process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE
-      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE }
-      : {},
+    {
+      executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE,
+      args: ["--allow-file-access-from-files"],
+    },
   );
   try {
     const page = await browser.newPage({
@@ -56,7 +58,7 @@ function render(name, text) {
     });
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
-    await page.goto(pathToFileURL(path.join(root, "ui/index.html")).href);
+    await loadReader(page, pathToFileURL(path.join(root, "ui/index.html")).href);
     await page.evaluate(
       ({ a, b, c }) => {
         window.searchReads = [];

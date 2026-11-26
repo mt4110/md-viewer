@@ -1,16 +1,13 @@
-use base64::{Engine, engine::general_purpose::STANDARD};
-use pulldown_cmark::{Event, Options, Parser, Tag, TagEnd, html};
+mod images;
+mod render;
+
+pub(crate) use images::{ImageBudget, read_local_image};
+use render::render_mode;
+pub use render::{preserves_rendering, render, render_draft};
 use serde::Serialize;
-use std::{
-    collections::{HashMap, HashSet},
-    fs,
-    io::Read,
-    path::Path,
-};
+use std::{fs, io::Read, path::Path};
 
 pub const MAX_DOCUMENT: u64 = 2 * 1024 * 1024;
-const MAX_IMAGE: u64 = 8 * 1024 * 1024;
-const MAX_ASSETS: usize = 24 * 1024 * 1024;
 #[derive(Clone, Serialize)]
 pub struct Heading {
     pub id: String,
@@ -114,238 +111,40 @@ pub fn load_for_search(path: &Path) -> Result<Document, String> {
     load_mode(path, false)
 }
 fn load_mode(path: &Path, images: bool) -> Result<Document, String> {
-    let path = local_path(path)?;
-    if !matches!(
-        path.extension()
-            .and_then(|s| s.to_str())
-            .map(str::to_lowercase)
-            .as_deref(),
-        Some("md" | "markdown")
-    ) {
-        return Err("Markdownファイルを選んでください。".into());
-    }
-    let bytes = read_bounded(&path, MAX_DOCUMENT)?;
-    let text = std::str::from_utf8(&bytes)
-        .map_err(|_| "UTF-8の文書を選んでください。")?
-        .trim_start_matches('\u{feff}');
+    let (path, text) = read_markdown(path)?;
     let mut document = render_mode(
-        text,
-        path.parent().ok_or("参照フォルダーがありません。")?,
+        text.trim_start_matches('\u{feff}'),
+        Some(path.parent().ok_or("参照フォルダーがありません。")?),
         path.file_name().unwrap().to_string_lossy().into_owned(),
         images,
     )?;
     document.id = path.to_string_lossy().into_owned();
     Ok(document)
 }
-fn escaped(s: &str) -> String {
-    s.replace('&', "&amp;")
-        .replace('<', "&lt;")
-        .replace('>', "&gt;")
-        .replace('"', "&quot;")
-}
-fn image_url(
-    root: &Path,
-    dest: &str,
-    total: &mut usize,
-    pixels: &mut u64,
-    count: &mut usize,
-) -> Result<(String, u32, u32), String> {
-    let decoded = percent_encoding::percent_decode_str(dest)
-        .decode_utf8()
-        .map_err(|_| "画像パスが不正です")?;
-    let dest = decoded.as_ref();
-    if dest.contains(':') || dest.starts_with(['/', '\\']) {
-        return Err("外部画像・絶対パスは読み込みません".into());
-    }
-    if *count >= 64 {
-        return Err("画像の個数上限です".into());
-    }
-    *count += 1;
-    let file = local_path(&root.join(dest)).map_err(|_| "画像が見つかりません")?;
-    if !file.starts_with(root) {
-        return Err("参照フォルダー外の画像です".into());
-    }
-    let mime = match file
-        .extension()
-        .and_then(|s| s.to_str())
-        .map(str::to_lowercase)
-        .as_deref()
-    {
-        Some("png") => "image/png",
-        Some("jpg" | "jpeg") => "image/jpeg",
-        Some("webp") => "image/webp",
-        _ => return Err("未対応の画像形式です".into()),
-    };
-    let bytes = read_bounded(&file, MAX_IMAGE)?;
-    if *total + bytes.len() > MAX_ASSETS {
-        return Err("画像の合計サイズ上限です".into());
-    }
-    let reader = image::ImageReader::new(std::io::Cursor::new(&bytes))
-        .with_guessed_format()
-        .map_err(|_| "画像を確認できません")?;
-    let (w, h) = reader.into_dimensions().map_err(|_| "画像が壊れています")?;
-    if u64::from(w) * u64::from(h) > 20_000_000 {
-        return Err("画像の画素数上限です".into());
-    }
-    let area = u64::from(w) * u64::from(h);
-    if *pixels + area > 40_000_000 {
-        return Err("画像の合計画素数上限です".into());
-    }
-    *pixels += area;
-    *total += bytes.len();
-    Ok((
-        format!("data:{mime};base64,{}", STANDARD.encode(bytes)),
-        w,
-        h,
-    ))
-}
-pub fn render(text: &str, root: &Path, name: String) -> Result<Document, String> {
-    render_mode(text, root, name, true)
-}
-fn render_mode(text: &str, root: &Path, name: String, images: bool) -> Result<Document, String> {
-    if text.len() as u64 > MAX_DOCUMENT {
-        return Err("文書サイズ上限です。".into());
-    }
-    let root = local_path(root).map_err(|_| "参照フォルダーがありません。")?;
-    let options = Options::ENABLE_TABLES
-        | Options::ENABLE_STRIKETHROUGH
-        | Options::ENABLE_TASKLISTS
-        | Options::ENABLE_FOOTNOTES;
-    let (metadata, text) = if let Some(rest) = text.strip_prefix("---\n") {
-        if let Some(end) = rest.find("\n---\n") {
-            (Some(&rest[..end]), &rest[end + 5..])
-        } else {
-            (None, text)
-        }
-    } else {
-        (None, text)
-    };
-    let events: Vec<_> = Parser::new_ext(text, options).collect();
-    if events.len() > 100_000 {
-        return Err("文書の構造が複雑すぎます。".into());
-    }
-    let mut output = Vec::new();
-    let mut headings = Vec::new();
-    let mut counts = HashMap::<String, usize>::new();
-    let mut used_ids = HashSet::new();
-    let mut total = 0;
-    let mut pixels = 0;
-    let mut image_count = 0;
-    let mut i = 0;
-    while i < events.len() {
-        match &events[i] {
-            Event::Start(Tag::Heading { level, .. }) => {
-                let title: String = events[i + 1..]
-                    .iter()
-                    .take_while(|e| !matches!(e, Event::End(TagEnd::Heading(_))))
-                    .filter_map(|e| match e {
-                        Event::Text(t) | Event::Code(t) => Some(t.as_ref()),
-                        _ => None,
-                    })
-                    .collect();
-                let base: String = title
-                    .to_lowercase()
-                    .chars()
-                    .filter_map(|c| {
-                        if c.is_alphanumeric() || c == '_' || c == '-' {
-                            Some(c)
-                        } else if c.is_whitespace() {
-                            Some('-')
-                        } else {
-                            None
-                        }
-                    })
-                    .collect();
-                let count = counts.entry(base.clone()).or_default();
-                let mut id = if *count == 0 {
-                    base.clone()
-                } else {
-                    format!("{base}-{count}")
-                };
-                while !used_ids.insert(id.clone()) {
-                    *count += 1;
-                    id = format!("{base}-{count}");
-                }
-                *count += 1;
-                headings.push(Heading {
-                    id: id.clone(),
-                    title,
-                    level: *level as u8,
-                });
-                output.push(Event::Html(
-                    format!("<h{} id=\"{}\">", *level as u8, escaped(&id)).into(),
-                ));
-            }
-            Event::Html(t) | Event::InlineHtml(t) => output.push(Event::Text(t.clone())),
-            Event::Start(Tag::Image { dest_url, .. }) => {
-                let mut alt = String::new();
-                i += 1;
-                while i < events.len() && !matches!(events[i], Event::End(TagEnd::Image)) {
-                    if let Event::Text(t) | Event::Code(t) = &events[i] {
-                        alt.push_str(t);
-                    }
-                    i += 1;
-                }
-                if !images {
-                    i += 1;
-                    continue;
-                }
-                let markup =
-                    match image_url(&root, dest_url, &mut total, &mut pixels, &mut image_count) {
-                        Ok((url, w, h)) => format!(
-                            "<img src=\"{url}\" width=\"{w}\" height=\"{h}\" alt=\"{}\">",
-                            escaped(&alt)
-                        ),
-                        Err(reason) => format!(
-                            "<span class=\"image-error\">画像：{}（{}）</span>",
-                            escaped(&alt),
-                            escaped(&reason)
-                        ),
-                    };
-                output.push(Event::Html(markup.into()));
-            }
-            Event::Start(Tag::Link { dest_url, .. }) => {
-                let local = !dest_url.contains(':')
-                    && !dest_url.starts_with(['/', '\\'])
-                    && !dest_url.starts_with('#');
-                let href = if dest_url.starts_with('#') {
-                    escaped(dest_url)
-                } else {
-                    String::new()
-                };
-                let attr = if dest_url.split_once(':').is_some_and(|(scheme, _)| {
-                    scheme.eq_ignore_ascii_case("http") || scheme.eq_ignore_ascii_case("https")
-                }) {
-                    format!(" data-external=\"{}\"", escaped(dest_url))
-                } else if local {
-                    format!(" data-local=\"{}\"", escaped(dest_url))
-                } else {
-                    String::new()
-                };
-                output.push(Event::Html(format!("<a href=\"{href}\"{attr}>").into()));
-            }
-            e => output.push(e.clone()),
-        }
-        i += 1;
-    }
-    let mut body = metadata
-        .map(|m| {
-            format!(
-                "<details><summary>文書の情報</summary><pre>{}</pre></details>",
-                escaped(m)
-            )
-        })
-        .unwrap_or_default();
-    html::push_html(&mut body, output.into_iter());
-    Ok(Document {
-        id: name.clone(),
-        anchor: None,
-        name,
-        html: body,
-        headings,
-    })
+
+pub(crate) fn read_markdown(path: &Path) -> Result<(std::path::PathBuf, String), String> {
+    let path = local_path(path)?;
+    let text = read_markdown_at(&path)?;
+    Ok((path, text))
 }
 
+pub(crate) fn read_markdown_at(path: &Path) -> Result<String, String> {
+    if !is_markdown_path(path) {
+        return Err("Markdownファイルを選んでください。".into());
+    }
+    let bytes = read_bounded(path, MAX_DOCUMENT)?;
+    String::from_utf8(bytes).map_err(|_| "UTF-8の文書を選んでください。".into())
+}
+
+pub(crate) fn is_markdown_path(path: &Path) -> bool {
+    matches!(
+        path.extension()
+            .and_then(|s| s.to_str())
+            .map(str::to_lowercase)
+            .as_deref(),
+        Some("md" | "markdown")
+    )
+}
 pub fn resolve_local(source: &Path, target: &str) -> Result<std::path::PathBuf, String> {
     let decoded = percent_encoding::percent_decode_str(target.split('#').next().unwrap_or(""))
         .decode_utf8()

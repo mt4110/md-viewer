@@ -1,0 +1,79 @@
+@page {
+  margin: 14mm;
+}
+
+@media print {
+  body {
+    color-scheme: light;
+    --paper: white;
+    --ink: #171717;
+    --accent: #234f44;
+    --muted: #333;
+    --line: #bbb;
+  }
+
+  #chrome, #outline, dialog, dialog::backdrop,
+  .writer-toolbar, .writer-options, #writer-status, #writer-edit, .writer-pane-tabs,
+  #writer-guide, #writer-preview-empty {
+    display: none !important;
+  }
+
+  .layout {
+    display: block;
+  }
+
+  #writer {
+    max-width: none;
+    padding: 0;
+  }
+  .writer-panes, .writer-pane, #writer-preview {
+    display: block !important;
+    height: auto;
+    overflow: visible;
+    border: 0;
+  }
+  #writer-document {
+    padding: 0;
+  }
+
+  article {
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    break-after: avoid;
+  }
+
+  pre, .table-wrap {
+    overflow: visible;
+  }
+
+  pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    background: transparent;
+  }
+
+  th, td {
+    padding: 4pt 6pt;
+  }
+
+  tr, img {
+    break-inside: avoid;
+  }
+
+  img {
+    max-height: 220mm;
+    object-fit: contain;
+  }
+
+  #document mark {
+    color: inherit;
+    background: transparent;
+    outline: none;
+  }
+}
