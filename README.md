@@ -5,12 +5,18 @@
 AIが作った説明書、仕事で受け取った手順書、調査メモなどの `.md` ファイルを、見出し・表・画像のある文書として表示するアプリです。
 対象は、エディタの設定やブラウザ拡張の導入をせずに文書を読みたい人です。
 
-**v0.1.0は開発者向けのソース版です。[Release](https://github.com/mt4110/md-viewer/releases/tag/v0.1.0)のソースアーカイブから取得できます。利用者向けインストーラーは含みません。**
+## Mac 版をダウンロード
+
+**[md-viewer v0.2.0 の DMG をダウンロード（Apple Silicon / arm64）](https://github.com/mt4110/md-viewer/releases/download/v0.2.0/md-viewer_0.2.0_aarch64.dmg)**
+
+Developer ID 署名・Apple 公証済みです。DMG を開き、md-viewer を「アプリケーション」へドラッグします。
+[v0.2.0 のリリースノートと SHA-256](https://github.com/mt4110/md-viewer/releases/tag/v0.2.0)も確認できます。
+
+v0.1.0 は[開発者向けのソース版](https://github.com/mt4110/md-viewer/releases/tag/v0.1.0)です。
 Windows・macOSのCIでRust・UI回帰・releaseビルドを確認しています。macOSの本文表示・目次・検索・文字サイズ・基本タブはローカル試作で確認しました。
 WindowsのIME・読み上げ・関連付け・更新・アンインストール等の全受入確認は未完了です。確認範囲は[Windowsの検証記録](docs/markdown-reader/VALIDATION_WINDOWS_0_1_0.md)を参照してください。
 所有者はHPのWindows 11 Pro本体で旧インストーラーの導入・起動を確認しましたが、権利表示を追加して再梱包した新候補はSACに開始前に拒否されました。
 未署名のEXEとMSIX試作はv0.1.0のReleaseに添付しません。Gitの署名タグはWindowsアプリのコード署名とは別で、SACやSmartScreenでの許可を保証しません。
-macOSの配布用アプリのDeveloper ID署名・公証は未完了です。
 
 ## こんなときに使う
 
@@ -32,9 +38,7 @@ Markdownの書き方を覚える必要はありません。アカウントや文
 
 ## 開いて、読む
 
-今後の利用者向け配布では、次の使い方を提供する予定です。v0.1.0は下記「試作の起動」の開発者向けビルドが必要です。
-
-1. Windowsではセットアップ用 `.exe`、macOSでは `.dmg` から導入する。
+1. Apple Silicon Mac では、[上の DMG](#mac-版をダウンロード)から導入する。
 2. ファイルをアプリへドロップするか、「ファイルを開く」で選ぶ。
 3. 本文を読み、必要に応じて文字を大きくしたり、目次や検索で探したりする。
 
@@ -135,7 +139,7 @@ VS Codeなどの外部保存を自動検知します。Vimの置換保存でも�
 Rust と Tauri 2、OS の WebView を使用します。フロントエンドの入口は `reader/ui/reader.js` です。閲覧、検索、編集、書き出しなどを機能別の JavaScript モジュールに置いています。CSS は `reader/ui/styles/` に置いています。
 Rust の起動処理は `reader/src/main.rs`、Tauri のコマンドは `reader/src/commands/` にあり、文書処理や保存はそれぞれのモジュールが担当します。
 手書きの製品コードには、1ファイルあたり256行の上限を設けています。`npm run check:source-size` で確認できます。
-Windowsは日本語のセットアップ `.exe`、macOSは `.dmg` に入れたアプリを配布する予定です。
+Apple Silicon Mac 向けには `.dmg` を配布しています。Windows 向けには日本語のセットアップ `.exe` を予定しています。
 Windowsで必要なWebView2が未導入の場合、初回セットアップにはネット接続が必要になる設計です。
 インストール後のローカル文書の閲覧はネット接続なしで行えるようにします。
 
@@ -162,7 +166,7 @@ md-viewer本体は[MIT](reader/LICENSE)。範囲は[LICENSE-SCOPE.md](LICENSE-SC
 Windows/macOSのCIは[Check md-viewer](.github/workflows/check.yml)で定義し、ブランチへのpush時に実行します。
 実行結果は[GitHub Actions](https://github.com/mt4110/md-viewer/actions/workflows/check.yml)で対象コミットを確認してください。
 CIのビルド・テストと、Windows実機でのOS連携やインストーラーの導入確認は別です。
-v0.1.0のタグとReleaseはソース版を対象とします。署名・公証済みアプリの配布は未完了です。
+v0.1.0 のタグと Release はソース版を対象とします。署名・公証済みの Apple Silicon Mac 版は v0.2.0 の Release から取得できます。
 ソース候補はpython3 tools/package_md_viewer.pyで新規出力先へ作ります。旧package_source.pyは使用しません。
 Releaseのmd-viewer-0.1.0-source.tar.gzは旧ラボのコード・成果物を除いたアーカイブです。GitHubが自動生成するSource codeのzip/tar.gzは旧ラボも含むリポジトリ全体なので、適用ライセンスの範囲に注意してください。
 [セキュリティ方針](SECURITY.md)も確認してください。
