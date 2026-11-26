@@ -2,11 +2,15 @@
 
 **Markdownの表示方法を知らなくても、受け取った文書を開いて読める、ローカルのMarkdownビューアー。**
 
-AIが作った説明書、仕事で受け取った手順書、調査メモなどの `.md` ファイルを、見出し・表・画像のある文書として表示するアプリを作ります。
+AIが作った説明書、仕事で受け取った手順書、調査メモなどの `.md` ファイルを、見出し・表・画像のある文書として表示するアプリです。
 対象は、エディタの設定やブラウザ拡張の導入をせずに文書を読みたい人です。
 
-**現在はローカル試作段階です。macOSで本文表示・目次・検索・文字サイズ・基本タブを確認しました。Windowsと配布用インストーラーは未検証です。**
-WindowsとmacOSを対象に、Rustを中核として開発する予定です。
+**v0.1.0は開発者向けのソース版です。[Release](https://github.com/mt4110/md-viewer/releases/tag/v0.1.0)のソースアーカイブから取得できます。利用者向けインストーラーは含みません。**
+Windows・macOSのCIでRust・UI回帰・releaseビルドを確認しています。macOSの本文表示・目次・検索・文字サイズ・基本タブはローカル試作で確認しました。
+WindowsのIME・読み上げ・関連付け・更新・アンインストール等の全受入確認は未完了です。確認範囲は[Windowsの検証記録](docs/markdown-reader/VALIDATION_WINDOWS_0_1_0.md)を参照してください。
+所有者はHPのWindows 11 Pro本体で旧インストーラーの導入・起動を確認しましたが、権利表示を追加して再梱包した新候補はSACに開始前に拒否されました。
+未署名のEXEとMSIX試作はv0.1.0のReleaseに添付しません。Gitの署名タグはWindowsアプリのコード署名とは別で、SACやSmartScreenでの許可を保証しません。
+macOSの配布用アプリのDeveloper ID署名・公証は未完了です。
 
 ## こんなときに使う
 
@@ -28,7 +32,7 @@ Markdownの書き方を覚える必要はありません。アカウントや文
 
 ## 開いて、読む
 
-初期版では、次の使い方を提供します。
+今後の利用者向け配布では、次の使い方を提供する予定です。v0.1.0は下記「試作の起動」の開発者向けビルドが必要です。
 
 1. Windowsではセットアップ用 `.exe`、macOSでは `.dmg` から導入する。
 2. ファイルをアプリへドロップするか、「ファイルを開く」で選ぶ。
@@ -36,7 +40,7 @@ Markdownの書き方を覚える必要はありません。アカウントや文
 
 「プログラムから開く」「このアプリケーションで開く」からも使えるようにします。
 既定のアプリに設定した場合は、文書のダブルクリックで開けます。既定設定は利用者がOS上で選びます。
-ソースコードの取得、Rust、Node.js、コマンド操作は利用者に要求しません。
+利用者向け配布では、ソースコードの取得、Rust、Node.js、コマンド操作を不要にすることを目指します。
 
 ## 読むために備える機能
 
@@ -143,14 +147,14 @@ Windowsで必要なWebView2が未導入の場合、初回セットアップに�
 
 ## 既存成果物について
 
-GitHubのリポジトリ名を `md-viewer` へ変更しました。アプリの試作はreader/にあり、配布物はこれから作成します。
+GitHubのリポジトリ名を `md-viewer` へ変更しました。アプリの試作はreader/にあり、v0.1.0は対象を絞ったソースアーカイブで配布します。
 ルートのCargo設定はmd-viewerを既定ビルドするワークスペースです。旧ラボのCargo設定とロックはlegacy-lab/へ保全しています。
 ルートのsrc/・tests/・assets/・fixtures/は旧veil-boundary-labの合成デモで、md-viewerのビルド対象ではありません。
 旧READMEは [README.lab.md](README.lab.md) に原文のまま残しています。
 旧ラボのコード・検証記録・画像・GIF・配布アーカイブは保全し、第三者確認は未実施のままです。
 既存の梱包スクリプトは旧ラボ用です。md-viewerの配布には使用しません。
 
-## 公開前修正と検証の入口
+## ソース版の取得と検証の入口
 
 md-viewer本体は[MIT](reader/LICENSE)。範囲は[LICENSE-SCOPE.md](LICENSE-SCOPE.md)を参照してください。
 ルートでcargo build --locked、npm ci --ignore-scripts、npx playwright install chromiumを実行できます。
@@ -158,17 +162,19 @@ md-viewer本体は[MIT](reader/LICENSE)。範囲は[LICENSE-SCOPE.md](LICENSE-SC
 Windows/macOSのCIは[Check md-viewer](.github/workflows/check.yml)で定義し、ブランチへのpush時に実行します。
 実行結果は[GitHub Actions](https://github.com/mt4110/md-viewer/actions/workflows/check.yml)で対象コミットを確認してください。
 CIのビルド・テストと、Windows実機でのOS連携やインストーラーの導入確認は別です。
-タグ・リリースの作成、配布アプリの署名・公証は、別途公開可否を判断してから行います。
+v0.1.0のタグとReleaseはソース版を対象とします。署名・公証済みアプリの配布は未完了です。
 ソース候補はpython3 tools/package_md_viewer.pyで新規出力先へ作ります。旧package_source.pyは使用しません。
+Releaseのmd-viewer-0.1.0-source.tar.gzは旧ラボのコード・成果物を除いたアーカイブです。GitHubが自動生成するSource codeのzip/tar.gzは旧ラボも含むリポジトリ全体なので、適用ライセンスの範囲に注意してください。
 [セキュリティ方針](SECURITY.md)も確認してください。
 
 ## 所有者向けの配布候補検証
 
-[Package Windows test candidate](.github/workflows/package-candidate.yml)は、feat/md-viewerの対象変更時に
+[Package Windows test candidate](.github/workflows/package-candidate.yml)は、feat/md-viewerの対象変更時または手動実行で
 未署名の日本語NSISセットアップ、対応ソース、SHA-256を生成して検証します。
-成果物のアップロードは既定で無効です。第三者権利表示と共有範囲を確認した後、手動実行のupload_artifactで明示的に選んだ場合だけ7日間保存します。
-タグやGitHub Releaseは作成しません。第三者権利表示の確認が未完了のため、一般配布用とは扱いません。
-[Windows実機での確認手順](docs/markdown-reader/WINDOWS_MANUAL_CHECK.md)は、画面を接続できるときに実施してください。
+成果物のアップロードは既定で無効です。権利表示と共有範囲を確認した後、手動実行のupload_artifactで明示的に選んだ場合だけ7日間保存します。
+このCIはタグやGitHub Releaseを作成しません。公開は最終コミット・CI・成果物を照合した後に判断します。
+セットアップにはLICENSE.txtとTHIRD_PARTY_NOTICES.txt/jsonを同梱します。固定依存の本文・帰属表示・該当ソースの取得先を収録し、不足や生成物の不一致をCIで拒否します。
+[Windows実機での確認手順](docs/markdown-reader/WINDOWS_MANUAL_CHECK.md)で、実施済みと未実施を区別しています。
 
 梱包用CLIは@tauri-apps/cli 2.12.4へ固定しています。macOSはreader/で以下を実行します。
 既存の成果物を上書きしないよう、別の作業場所と新しいCARGO_TARGET_DIRを使用してください。

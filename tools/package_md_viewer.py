@@ -6,8 +6,8 @@ import hashlib
 import io
 import json
 from pathlib import Path
-import subprocess
 import tarfile
+from generate_notices import generated_notices, OUTPUT
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -18,9 +18,16 @@ def main():
     args = parser.parse_args()
     if args.output.exists():
         parser.error('Choose a new output directory')
+    notices = generated_notices()
+    for name, text in notices.items():
+        path = ROOT / OUTPUT / name
+        if not path.is_file() or path.read_text(encoding='utf-8') != text:
+            parser.error(f'Stale or missing notices: {path}; regenerate and review')
     names = ['Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml', 'package.json',
-             'package-lock.json', '.gitignore', '.markdownlint-cli2.jsonc',
-             'SECURITY.md', 'LICENSE-SCOPE.md', 'tools/package_md_viewer.py', 'tools/build_dev_app.py']
+             'package-lock.json', '.gitignore', '.gitattributes', '.markdownlint-cli2.jsonc',
+             'SECURITY.md', 'LICENSE-SCOPE.md', 'tools/package_md_viewer.py', 'tools/build_dev_app.py',
+             'tools/generate_notices.py', 'tools/license_overrides.json', 'tools/test_notices.py']
+    names.extend(f.relative_to(ROOT).as_posix() for f in (ROOT / 'tools/licenses').rglob('*') if f.is_file())
     for directory in ['reader', '.cargo', '.github', 'docs/markdown-reader']:
         for file in (ROOT / directory).rglob('*'):
             relative = file.relative_to(ROOT)
@@ -33,19 +40,8 @@ def main():
             raise SystemExit('Symlink in source inputs')
         entries[name] = file.read_bytes()
     entries['README.md'] = (ROOT / 'docs/markdown-reader/DISTRIBUTION_README.md').read_bytes()
-    metadata = json.loads(subprocess.check_output(['rustup', 'run', '1.95.0', 'cargo', 'metadata', '--locked', '--format-version', '1'], cwd=ROOT))
-    inventory = []
-    for package in metadata['packages']:
-        if package['name'] == 'md-viewer':
-            continue
-        base = Path(package['manifest_path']).parent
-        texts = {}
-        for f in base.iterdir():
-            if f.is_file() and f.name.upper().startswith(('LICENSE', 'COPYING', 'NOTICE')) and f.stat().st_size < 2*1024*1024:
-                texts[f.name] = f.read_text(errors='replace')
-        inventory.append({'name': package['name'], 'version': package['version'], 'license': package['license'],
-                          'repository': package['repository'], 'license_texts': texts})
-    entries['THIRD_PARTY_NOTICES.json'] = json.dumps(inventory, ensure_ascii=False, indent=2).encode()
+    for name, text in notices.items():
+        entries[name] = text.encode()
     entries['SOURCE_MANIFEST.json'] = json.dumps({name: hashlib.sha256(data).hexdigest() for name, data in entries.items()}, indent=2).encode()
     args.output.mkdir(parents=True, exist_ok=False)
     archive = args.output / 'md-viewer-0.1.0-source.tar.gz'
@@ -59,8 +55,7 @@ def main():
                     tar.addfile(item, io.BytesIO(data))
     digest = hashlib.sha256(archive.read_bytes()).hexdigest()
     (args.output / 'SHA256SUMS').write_text(f'{digest}  {archive.name}\n')
-    missing = [p['name'] for p in inventory if not p['license_texts']]
-    print(json.dumps({'archive': str(archive), 'sha256': digest, 'license_text_missing': missing}))
+    print(json.dumps({'archive': str(archive), 'sha256': digest, 'license_text_missing': []}))
 
 
 if __name__ == '__main__':

@@ -1,0 +1,4 @@
+# Preserve upstream license whitespace; keep code whitespace checks unchanged.
+tools/licenses/** text eol=lf -whitespace
+tools/license_overrides.json text eol=lf
+reader/resources/notices/** text eol=lf -whitespace linguist-generated=true
